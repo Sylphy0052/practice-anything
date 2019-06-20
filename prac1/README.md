@@ -16,7 +16,6 @@ color: 黄色
 name: apple
 color: red
 ---FIN---
-~/G/p/p/o/a
 ```
 
 ## Memo
