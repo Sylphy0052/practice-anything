@@ -1,20 +1,23 @@
 package parser;
 
-import framework.MyFileReaderInterface;
+import framework.MyFileParserInterface;
+import status.Status;
+import tag.Tag;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-abstract public class MyFileReader implements MyFileReaderInterface {
+abstract public class MyFileParser implements MyFileParserInterface {
     protected int currentIndex = 0;
-    private Map<String, String> tagMap = new HashMap<String, String>();
+    protected Status currentStatus = Status.NONE;
+    protected Tag tags = new Tag();
+    protected int currentDepth;
 
-    protected MyFileReader() {
+
+    protected MyFileParser() {
     }
 
     protected String readAll(Path path) throws IOException {
@@ -22,11 +25,6 @@ abstract public class MyFileReader implements MyFileReaderInterface {
     }
 
     abstract public void readFile(Path path);
-
-    @Override
-    public String getElement(String key) {
-        return (String) tagMap.get(key);
-    }
 
     @Override
     public void setPath(String path) {

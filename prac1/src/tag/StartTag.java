@@ -1,29 +1,20 @@
 package tag;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class Tag extends MyTag {
-    private Map<String, MyTag> next = new HashMap<>();
-
-    public Tag() {
+public class StartTag extends TagClass {
+    public StartTag() {
     }
 
-    public Tag(String tagName) {
-        this.element = tagName;
-    }
-
-    public void setTag(MyTag tag) {
-        next.put(element, tag);
+    public StartTag(String element, int depth) {
+        super(element, depth);
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(this.element + ": ");
-        for (MyTag mt : next.values()) {
-            sb.append(mt.getElement());
+        for (int i = 0; i < depth; i++) {
+            sb.append("\t");
         }
+        sb.append(this.element + ": \n");
         return sb.toString();
     }
 

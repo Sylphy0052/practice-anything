@@ -1,14 +1,17 @@
 package tag;
 
-public class EndTag extends MyTag {
+public class EndTag extends TagClass {
 
-    public EndTag(String element) {
-        this.element = element;
+    public EndTag() {
+    }
+
+    public EndTag(String element, int depth) {
+        super(element, depth);
     }
 
     @Override
     public String toString() {
-        return element + "\n";
+        return "";
     }
 
 }

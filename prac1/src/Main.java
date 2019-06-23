@@ -1,13 +1,15 @@
-import reader.MyFileReader;
-import reader.MyReaderFactory;
+import parser.MyFileParser;
+import parser.MyParserFactory;
 
 public class Main {
     public static void main(String[] args) {
-        MyReaderFactory mrf = new MyReaderFactory();
+        MyParserFactory mrf = new MyParserFactory();
         System.out.println("---XML---");
-        MyFileReader xmlReader = mrf.getXmlReader("./src/files/banana.xml");
-        System.out.println("---JSON---");
-        MyFileReader jsonReader = mrf.getJsonReader("./src/files/apple.json");
+        MyFileParser xmlReader = mrf.getParser("./src/files/banana.xml");
+        xmlReader.show();
+//        System.out.println("---JSON---");
+//        MyFileParser jsonReader = mrf.getParser("./src/files/apple.json");
+//        jsonReader.show();
         System.out.println("---FIN---");
     }
 }
