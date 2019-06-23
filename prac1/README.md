@@ -2,7 +2,6 @@
 
 ## 実行
 ```shell=
-$ cd out/artifacts/xml_json_jar/
 $ java -jar xml_json.jar
 ```
 
