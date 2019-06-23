@@ -10,13 +10,19 @@ import java.nio.file.Path;
 
 public class MyXMLParser extends MyFileParser {
 
+    private String allText = null;
+    private int endPoint;
+    private String nextText = null;
+
     public MyXMLParser() {
     }
 
-    @Override
-    public void readFile(Path path) {
-        int endPoint = currentIndex;
-        String allText = null;
+    private String formatText(String text) {
+        return text.replaceAll("[\r\n\t ]", "");
+    }
+
+    private void init(Path path) {
+        endPoint = currentIndex;
         try {
             // ファイルを1行のStringにする
             allText = readAll(path);
@@ -26,78 +32,98 @@ public class MyXMLParser extends MyFileParser {
         }
 
         // 改行，タブ，スペースを取り除く
-        allText = allText.replaceAll("[\r\n\t ]", "");
-        int allLength = allText.length();
-        String nextText = null;
+        allText = formatText(allText);
+        nextText = null;
+    }
+
+    private void firstProcess() {
+        // 最初に通る
+        endPoint = allText.indexOf(">");
+        if (allText.contains("<?xml")) {
+            currentIndex = endPoint + 1;
+        } else {
+            System.err.println("Not Defined in None.");
+            System.exit(-1);
+        }
+        currentStatus = Status.START;
+    }
+
+    private void parseStartTag() {
+        endPoint = allText.indexOf(">");
+
+        if (allText.startsWith("<")) {
+            tags.addTag(new StartTag(allText.substring(1, endPoint), currentDepth));
+        } else {
+            System.err.println("Not Defined in Start.");
+            System.exit(-1);
+        }
+        currentIndex = endPoint + 1;
+        currentStatus = Status.CONTENT;
+        currentDepth += 1;
+    }
+
+    private void parseContentTag() {
+        // 開始タグ
+        if (allText.startsWith("<")) {
+            endPoint = allText.indexOf(">");
+            tags.addTag(new StartTag(allText.substring(1, endPoint), currentDepth));
+            currentDepth += 1;
+            endPoint += 1;
+        } else { // 要素
+            endPoint = allText.indexOf("</");
+            tags.addTag(new ContentTag(allText.substring(0, endPoint), currentDepth));
+            currentStatus = Status.END;
+        }
+        currentIndex = endPoint;
+    }
+
+    private void parseEndTag() {
+        endPoint = allText.indexOf(">");
+        if (endPoint + 1 >= allText.length()) {
+            tags.addTag(new EndTag(allText.substring(2, endPoint), currentDepth));
+            currentDepth -= 1;
+            currentStatus = Status.END;
+        } else {
+            nextText = allText.substring(endPoint + 1);
+
+            if (nextText.startsWith("</")) {
+                tags.addTag(new EndTag(allText.substring(2, endPoint), currentDepth));
+                currentStatus = Status.END;
+                currentDepth -= 1;
+            } else if (nextText.startsWith("<")) {
+                tags.addTag(new EndTag(allText.substring(2, endPoint), currentDepth));
+                currentStatus = Status.START;
+                currentDepth -= 1;
+            } else { // 要素
+                System.err.println("Not Defined in End.");
+                System.exit(-1);
+            }
+            currentIndex = endPoint + 1;
+        }
+    }
+
+    @Override
+    public void readFile(Path path) {
+        init(path);
 
         // ファイル終端までループする
         while (currentIndex < allText.length()) {
             allText = allText.substring(currentIndex);
             switch (currentStatus) {
-                // 最初に通る
                 case NONE:
-                    endPoint = allText.indexOf(">");
-                    if (allText.contains("<?xml")) {
-                        currentIndex = endPoint + 1;
-                    } else {
-                        System.err.println("Not Defined in None.");
-                        System.exit(-1);
-                    }
-                    currentStatus = Status.START;
+                    firstProcess();
                     break;
                 // 開始タグ?
                 case START:
-                    endPoint = allText.indexOf(">");
-
-                    if (allText.startsWith("<")) {
-                        tags.addTag(new StartTag(allText.substring(1, endPoint), currentDepth));
-                    } else {
-                        System.err.println("Not Defined in Start.");
-                        System.exit(-1);
-                    }
-                    currentIndex = endPoint + 1;
-                    currentStatus = Status.CONTENT;
-                    currentDepth += 1;
+                    parseStartTag();
                     break;
                 // 要素 or 開始タグ
                 case CONTENT:
-                    // 開始タグ
-                    if (allText.startsWith("<")) {
-                        endPoint = allText.indexOf(">");
-                        tags.addTag(new StartTag(allText.substring(1, endPoint), currentDepth));
-                        currentDepth += 1;
-                        endPoint += 1;
-                    } else { // 要素
-                        endPoint = allText.indexOf("</");
-                        tags.addTag(new ContentTag(allText.substring(0, endPoint), currentDepth));
-                        currentStatus = Status.END;
-                    }
-                    currentIndex = endPoint;
+                    parseContentTag();
                     break;
                 case END:
-                    endPoint = allText.indexOf(">");
-                    if (endPoint + 1 >= allText.length()) {
-                        tags.addTag(new EndTag(allText.substring(2, endPoint), currentDepth));
-                        currentDepth -= 1;
-                        currentStatus = Status.END;
-                    } else {
-                        nextText = allText.substring(endPoint + 1);
-
-                        if (nextText.startsWith("</")) {
-                            tags.addTag(new EndTag(allText.substring(2, endPoint), currentDepth));
-                            currentStatus = Status.END;
-                            currentDepth -= 1;
-                        } else if (nextText.startsWith("<")) {
-                            tags.addTag(new EndTag(allText.substring(2, endPoint), currentDepth));
-                            currentStatus = Status.START;
-                            currentDepth -= 1;
-                        } else { // 要素
-                            System.err.println("Not Defined in End.");
-                            System.exit(-1);
-                        }
-                        currentIndex = endPoint + 1;
-                        break;
-                    }
+                    parseEndTag();
+                    break;
             }
         }
     }

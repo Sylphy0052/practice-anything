@@ -13,6 +13,11 @@ public class MyJsonParser extends MyFileParser {
     public MyJsonParser() {
     }
 
+    private void addTags(String[] words) {
+        tags.addTag(new StartTag(words[0], currentDepth));
+        tags.addTag(new ContentTag(words[1], currentDepth + 1));
+    }
+
     @Override
     public void readFile(Path path) {
         try (BufferedReader br = Files.newBufferedReader(path)) {
@@ -27,8 +32,7 @@ public class MyJsonParser extends MyFileParser {
                 }
 
                 String[] words = line.replaceAll("[\r\n\t \",]", "").split(":");
-                tags.addTag(new StartTag(words[0], currentDepth));
-                tags.addTag(new ContentTag(words[1], currentDepth + 1));
+                addTags(words);
             }
 
         } catch (IOException e) {
