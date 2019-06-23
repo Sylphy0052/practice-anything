@@ -16,13 +16,13 @@ color: 黄色
 name: apple
 color: red
 ---FIN---
-~/G/p/p/o/a
 ```
 
 ## Memo
 かなり荒い．
 
 ## ToDo
+- コメント書くw
 - 再帰にする
 - 深さを考慮する(現在一つ前しか参照できない)
 - Tag周りの再考
