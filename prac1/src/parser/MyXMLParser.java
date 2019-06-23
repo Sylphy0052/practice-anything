@@ -1,4 +1,4 @@
-package reader;
+package parser;
 
 import tag.EndTag;
 import tag.Tag;

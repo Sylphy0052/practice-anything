@@ -9,4 +9,6 @@ public interface MyFileReaderInterface {
     public String getElement(String key);
 
     public void setPath(String path);
+
+    public void show();
 }
