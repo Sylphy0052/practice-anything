@@ -1,5 +1,11 @@
 package parser;
 
+import tag.ContentTag;
+import tag.StartTag;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class MyJsonParser extends MyFileParser {
@@ -9,27 +15,30 @@ public class MyJsonParser extends MyFileParser {
 
     @Override
     public void readFile(Path path) {
-//        try (BufferedReader br = Files.newBufferedReader(path)) {
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//                if (line.startsWith("{") || line.startsWith("}")) {
-//                    continue;
-//                }
-//                String[] words = line.replaceAll("[\r\n\t \",]", "").split(":");
-//                StartTag tag = new StartTag(words[0]);
-//                EndTag et = new EndTag(words[1]);
-//                tag.setTag(et);
-//                System.out.println(tag);
-//            }
-//
-//        } catch (IOException e) {
-//            System.err.println("IOException");
-//            System.exit(-1);
-//        }
+        try (BufferedReader br = Files.newBufferedReader(path)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("{")) {
+                    currentDepth += 1;
+                    continue;
+                } else if (line.startsWith("}")) {
+                    currentDepth -= 1;
+                    continue;
+                }
+
+                String[] words = line.replaceAll("[\r\n\t \",]", "").split(":");
+                tags.addTag(new StartTag(words[0], currentDepth));
+                tags.addTag(new ContentTag(words[1], currentDepth + 1));
+            }
+
+        } catch (IOException e) {
+            System.err.println("IOException");
+            System.exit(-1);
+        }
     }
 
     @Override
     public void show() {
-        System.out.println(tags);
+        System.out.println(tags.toString());
     }
 }
