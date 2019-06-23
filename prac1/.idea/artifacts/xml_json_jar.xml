@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="xml_json:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/xml_json_jar</output-path>
-    <root id="archive" name="xml_json.jar">
-      <element id="module-output" name="xml_json" />
-    </root>
-  </artifact>
-</component>
